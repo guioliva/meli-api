@@ -19,27 +19,31 @@ class MeliApi:
 
         driver = self.brs
 
-        if 'click1' not in n and 'www' not in n:
-            finder_1 = (n.find('-'))
-            finder_2 = n.find('-', finder_1+1)
-            finder_3 = (n.find('MLM'))
-            n = n[int(finder_3):int(finder_2)]
-            n = n.replace('-','')
-    
-        elif 'click1' in n:
-            driver.get(n)
-            n = driver.current_url
-            finder_1 = (n.find('-'))
-            finder_2 = n.find('-', finder_1+1)
-            finder_3 = (n.find('MLM'))
-            n = n[int(finder_3):int(finder_2)]
-            n = n.replace('-','')
+        if option != 3:
+            if 'click1' not in n and 'www' not in n:
+                finder_1 = (n.find('-'))
+                finder_2 = n.find('-', finder_1+1)
+                finder_3 = (n.find('MLM'))
+                n = n[int(finder_3):int(finder_2)]
+                n = n.replace('-','')
+        
+            elif 'click1' in n:
+                driver.get(n)
+                n = driver.current_url
+                finder_1 = (n.find('-'))
+                finder_2 = n.find('-', finder_1+1)
+                finder_3 = (n.find('MLM'))
+                n = n[int(finder_3):int(finder_2)]
+                n = n.replace('-','')
 
         if option == 2:
             driver.get(f'https://api.mercadolibre.com/items/{n}?include_attributes=all#json')
 
         elif option == 1:
             driver.get(n)
+
+        elif option == 3:
+            driver.get(f'https://api.mercadolibre.com/categories/{n}')
 
     def data_flow(output_file, title, price, sold_quantity, start_time, gtin, seller_id, category_id, product_link):
 
@@ -152,6 +156,53 @@ class MeliApi:
             product_link = n
 
             MeliApi.data_flow(output_file, title, price, sold_quantity, start_time, value_name, seller_id, category_id, product_link)
+
+    def category_data(self, n):
+
+        driver = self.brs
+
+        product_ref = n
+
+        output_file = 'category_output'
+
+        expand = driver.find_element(By.XPATH, f'/html/body/div/div/section[1]/p/a[2]')
+        expand.click()
+
+        time.sleep(1)
+
+        category_data = driver.find_element(By.XPATH, f'/html/body/div/div/section[1]/div').text
+
+        category = json.loads(category_data)
+
+        print(category)
+
+        x = 0
+
+        for attribute in category['path_from_root']:
+
+            x += 1
+
+            if x == 1:
+                category_1 = attribute['name']
+            elif x == 2:
+                category_2 = attribute['name']
+            elif x == 3:
+                category_3 = attribute['name']
+            elif x == 4:
+                category_4 = attribute['name']
+
+        data_ready = []
+        table_description = {'mlb_original':product_ref, 'category_1':category_1, 'category_2':category_2, 'category_3':category_3, 'category_4':category_4}
+        data_ready.append(table_description)
+        df_table = pd.DataFrame(data_ready)
+        df_table.drop_duplicates()
+        df_table.to_csv(fr'C:\Users\guilherme.aleixo\Documents\API Meli\data\{output_file}.csv', mode='a', index=False, header=False)
+        data_ready.clear()
+
+
+
+
+
 
 
 
