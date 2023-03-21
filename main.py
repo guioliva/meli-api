@@ -178,21 +178,40 @@ class MeliApi:
 
         x = 0
 
+        category_4 = ''
+
         for attribute in category['path_from_root']:
 
             x += 1
 
             if x == 1:
-                category_1 = attribute['name']
+                try:
+                    category_1 = attribute['name']
+                except:
+                    category_1 = ''
             elif x == 2:
-                category_2 = attribute['name']
+                try:
+                    category_2 = attribute['name']
+                except:
+                    category_2 = ''
             elif x == 3:
-                category_3 = attribute['name']
+                try:
+                    category_3 = attribute['name']
+                except:
+                    category_3 = ''
             elif x == 4:
-                category_4 = attribute['name']
+                    try:
+                        category_4 = attribute['name']
+                    except:
+                        pass
 
         data_ready = []
-        table_description = {'mlb_original':product_ref, 'category_1':category_1, 'category_2':category_2, 'category_3':category_3, 'category_4':category_4}
+        
+        if category_4 != '':
+            table_description = {'mlb_original':product_ref, 'category_1':category_1, 'category_2':category_2, 'category_3':category_3, 'category_4':category_4}
+        else:
+            table_description = {'mlb_original':product_ref, 'category_1':category_1, 'category_2':category_2, 'category_3':category_3}
+
         data_ready.append(table_description)
         df_table = pd.DataFrame(data_ready)
         df_table.drop_duplicates()
